@@ -1,18 +1,24 @@
 """
-Initialize project-wide utilities.
+__init__.py
+-----------
+This module initializes and exposes commonly used utilities from the
+studentperformance package for easier and centralized imports.
 
-This module provides:
-- Centralized access to the custom exception class
-- Configured logger instance for consistent logging across the project
+It aggregates key components such as:
+- CustomException: for standardized error handling
+- Logger utility: for consistent logging across modules
+- Utility functions: for data loading and object persistence
 
-Note:
-Avoid reinitializing the logger in multiple places.
-Use this shared instance instead.
+By importing these here, other modules can access them directly from
+the package without deep imports.
 """
-
 
 from .studentperformance.exception import CustomException
 from .studentperformance.logger import get_logger
+from .studentperformance.utils import load_data
+from .studentperformance.utils import save_object
+from .studentperformance.components.data_ingestion import DataIngestion , DataIngestionConfig
+
 
 
 # Initialize a module-level logger for reuse across the application

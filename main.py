@@ -1,13 +1,13 @@
-from src import CustomException
-from src import logger
+from src import CustomException , logger , DataIngestion , DataIngestionConfig
 import sys
-
+import os 
 
 if __name__ == "__main__":
     try:
-        logger.info("Application started")
-        a = 1 / 0
+        obj = DataIngestion()
+        obj.initiate_data_ingestion()
+
     except Exception as e:
-        logger.error("Error occurred")
-        raise CustomException(e, sys)
-    logger.info("Application ended")
+        raise CustomException(e , sys )
+
+

@@ -1,4 +1,9 @@
 pandas
 numpy
 seaborn
--e .
+# don't need to call python package again only call as first time 
+# -e . 
+catboost
+xgboost
+dvc
+kagglehub

@@ -1,0 +1,8 @@
+{
+  "editor.quickSuggestions": false,
+  "editor.suggestOnTriggerCharacters": false,
+  "editor.parameterHints.enabled": false,
+  "editor.wordBasedSuggestions": false,
+  "python-envs.defaultEnvManager": "ms-python.python:conda",
+  "python-envs.defaultPackageManager": "ms-python.python:conda"
+}
