@@ -43,7 +43,7 @@ list_of_files = [
     "Dockerfile",   
     ".dockerignore",
     "requirements.txt",
-    "stream.py",
+    "main.py",
 
     # Kaggle config 
     "~/.kaggle/kaggle.json",
