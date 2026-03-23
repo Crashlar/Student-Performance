@@ -14,9 +14,13 @@ and return them as a dictionary of DataFrames.
 
 from src.studentperformance.logger import logging
 from src.studentperformance.exception import CustomException
+
+
 import sys
 import pandas as pd
 import os
+import pickle
+import dill
 import numpy as np
 import kagglehub
 
@@ -63,6 +67,15 @@ def load_data():
                 # Load CSV into DataFrame
                 df = pd.read_csv(file_path, low_memory=False)
 
+                # CLEAN COLUMN NAMES HERE
+                df.columns = (
+                    df.columns
+                    .str.strip()
+                    .str.lower()
+                    .str.replace(" ", "_")
+                    .str.replace("/", "_")
+                )
+
                 logger.info(f"Loaded {file} with shape {df.shape}")
                 return df
 
@@ -93,4 +106,12 @@ def save_object(file_path, obj):
     -------
     None
     """
-    pass
+    try:
+        dir_path = os.path.dirname(file_path)
+        os.makedirs(dir_path, exist_ok=True)
+        with open(file_path, "wb") as file_obj:
+            dill.dump(obj, file_obj)
+
+    except Exception as e:
+        raise CustomException(e, sys)
+    

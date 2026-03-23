@@ -40,6 +40,8 @@ def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
 
+    logger.propagate = False
+
     # Avoid duplicate handlers
     if logger.handlers:
         return logger
