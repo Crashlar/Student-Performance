@@ -11,6 +11,8 @@ It ensures:
 
 import logging
 import os
+import colorlog
+from logging.handlers import RotatingFileHandler
 from datetime import datetime
 
 # Create logs directory at project root 
@@ -60,7 +62,19 @@ def get_logger(name: str) -> logging.Logger:
     )
 
     file_handler.setFormatter(formatter)
-    console_handler.setFormatter(formatter)
+
+    color_formatter = colorlog.ColoredFormatter(
+    "%(log_color)s[ %(asctime)s ] %(lineno)d %(name)s - %(levelname)s - %(message)s",
+    log_colors={
+        'DEBUG': 'cyan',
+        'INFO': 'green',
+        'WARNING': 'yellow',
+        'ERROR': 'red',
+        'CRITICAL': 'bold_red',
+    }
+)
+
+    console_handler.setFormatter(color_formatter)
 
     # Attach handlers
     logger.addHandler(file_handler)

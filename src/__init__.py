@@ -19,6 +19,7 @@ from .studentperformance.utils import load_data
 from .studentperformance.utils import save_object
 from .studentperformance.components.data_ingestion import DataIngestion , DataIngestionConfig
 from .studentperformance.components.data_transformation import DataTransformation , DataTransformationConfig
+from .studentperformance.components.model_trainer import ModelTrainer , ModelTrainerConfig
 
 
 # Initialize a module-level logger for reuse across the application

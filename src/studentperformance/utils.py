@@ -1,20 +1,20 @@
 """
 utils.py
---------------
-This module is responsible for loading datasets from Kaggle using the kagglehub API.
+--------
+This module provides utility functions used across the ML pipeline.
 
-It provides utility functions to:
-- Download datasets from Kaggle
-- Load CSV files into pandas DataFrames
-- Return the loaded data in a structured format
+Key responsibilities:
+- Downloading and loading datasets from Kaggle using kagglehub
+- Cleaning and standardizing dataset column names
+- Saving trained objects (models, preprocessors, etc.) to disk
+- Evaluating multiple machine learning models and comparing their performance
 
-The module is designed to handle multiple CSV files within a dataset
-and return them as a dictionary of DataFrames.
+These utilities support different stages of the pipeline such as data ingestion,
+data transformation, and model training.
 """
 
 from src.studentperformance.logger import logging
 from src.studentperformance.exception import CustomException
-
 
 import sys
 import pandas as pd
@@ -24,6 +24,11 @@ import dill
 import numpy as np
 import kagglehub
 
+from sklearn.metrics import r2_score
+from sklearn.model_selection import GridSearchCV
+
+
+# Initialize logger for this module
 logger = logging.getLogger(__name__)
 
 
@@ -34,32 +39,29 @@ def load_data():
     This function:
     - Downloads the dataset using kagglehub
     - Searches for CSV files in the downloaded directory
-    - Reads the first CSV file into a pandas DataFrame
-    - Returns the loaded DataFrame
+    - Loads the first CSV file into a pandas DataFrame
+    - Standardizes column names (lowercase, no spaces, underscores)
 
     Returns:
     -------
     pandas.DataFrame
-        The dataset loaded as a DataFrame
+        Loaded and cleaned dataset
 
     Raises:
     ------
     FileNotFoundError
-        If no CSV file is found in the downloaded dataset
+        If no CSV file is found in the dataset directory
 
     CustomException
-        If any error occurs during download or data loading
-
-    Notes:
-    -----
-    - Assumes the dataset contains at least one CSV file
-    - Only the first CSV file found is loaded
+        If any error occurs during dataset download or loading
     """
 
     try:
+        # Download dataset from Kaggle
         path = kagglehub.dataset_download("spscientist/students-performance-in-exams")
         logger.info(f"Dataset downloaded at: {path}")
 
+        # Iterate through files in dataset directory
         for file in os.listdir(path):
             if file.endswith(".csv"):
                 file_path = os.path.join(path, file)
@@ -67,7 +69,10 @@ def load_data():
                 # Load CSV into DataFrame
                 df = pd.read_csv(file_path, low_memory=False)
 
-                # CLEAN COLUMN NAMES HERE
+                # Standardize column names:
+                # - Remove leading/trailing spaces
+                # - Convert to lowercase
+                # - Replace spaces and slashes with underscores
                 df.columns = (
                     df.columns
                     .str.strip()
@@ -79,39 +84,119 @@ def load_data():
                 logger.info(f"Loaded {file} with shape {df.shape}")
                 return df
 
-        # Raise error if no CSV file is found
+        # Raise error if no CSV found
         raise FileNotFoundError("No CSV files found")
 
     except Exception as ex:
-        # Wrap exception in custom exception for better traceability
+        logger.error("Error occurred while loading data")
         raise CustomException(ex, sys)
+
 
 def save_object(file_path, obj):
     """
-    Placeholder function for saving Python objects to disk.
+    Saves a Python object to disk using dill serialization.
 
-    This function is intended to:
-    - Serialize and save objects such as models, preprocessors, etc.
-    - Persist trained artifacts for later use
+    This function is typically used to persist:
+    - Trained machine learning models
+    - Preprocessing pipelines
+    - Any reusable artifacts
 
     Parameters:
     ----------
     file_path : str
-        Path where the object should be saved
+        Destination path where the object will be saved
 
     obj : any
-        Python object to be saved
+        Python object to serialize and store
 
     Returns:
     -------
     None
+
+    Raises:
+    ------
+    CustomException
+        If saving the object fails
     """
+
     try:
+        # Ensure the directory exists
         dir_path = os.path.dirname(file_path)
         os.makedirs(dir_path, exist_ok=True)
+
+        # Serialize and save the object
         with open(file_path, "wb") as file_obj:
             dill.dump(obj, file_obj)
 
+        logger.info(f"Object saved at: {file_path}")
+
     except Exception as e:
+        logger.error("Error occurred while saving object")
         raise CustomException(e, sys)
-    
+
+
+def evaluate_models(X_train, y_train, X_test, y_test, models):
+    """
+    Trains and evaluates multiple machine learning models.
+
+    For each model:
+    - Fit the model on training data
+    - Predict on both training and testing data
+    - Compute R² score for evaluation
+    - Store the test score in a report dictionary
+
+    Parameters:
+    ----------
+    X_train : array-like
+        Training feature set
+
+    y_train : array-like
+        Training target values
+
+    X_test : array-like
+        Testing feature set
+
+    y_test : array-like
+        Testing target values
+
+    models : dict
+        Dictionary of model name (str) and model instance
+
+    Returns:
+    -------
+    dict
+        Dictionary containing model names as keys and their test R² scores as values
+
+    Raises:
+    ------
+    CustomException
+        If any error occurs during model training or evaluation
+    """
+
+    try:
+        report = {}
+
+        # Iterate through all models
+        for i in range(len(list(models))):
+            model_name = list(models.keys())[i]
+            model = list(models.values())[i]
+
+            # Train the model
+            model.fit(X_train, y_train)
+
+            # Predictions
+            y_train_pred = model.predict(X_train)
+            y_test_pred = model.predict(X_test)
+
+            # Evaluate performance
+            train_model_score = r2_score(y_train, y_train_pred)
+            test_model_score = r2_score(y_test, y_test_pred)
+
+            # Store only test score
+            report[model_name] = test_model_score
+
+        return report
+
+    except Exception as e:
+        logger.error("Error occurred while evaluating models")
+        raise CustomException(e, sys)
