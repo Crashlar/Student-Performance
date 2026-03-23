@@ -32,6 +32,8 @@ from sklearn.metrics import r2_score
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 
+from sklearn.model_selection import GridSearchCV
+
 from dataclasses import dataclass
 
 
@@ -115,27 +117,79 @@ class ModelTrainer:
                 "AdaBoost Regressor": AdaBoostRegressor(),
             }
 
-            # Evaluate all models using utility function
-            model_report: dict = evaluate_models(
-                X_train=X_train,
-                y_train=y_train,
-                X_test=X_test,
-                y_test=y_test,
-                models=models
-            )
+            # Define hyperparameter grids
+            param_grids = {
+                    "Random Forest": {
+                        "n_estimators": [50, 100],
+                        "max_depth": [None, 10, 20],
+                    },
+                    "Decision Tree": {
+                        "max_depth": [None, 5, 10, 20],
+                        "min_samples_split": [2, 5, 10],
+                    },
+                    "Gradient Boosting": {
+                        "n_estimators": [50, 100],
+                        "learning_rate": [0.05, 0.1],
+                        "max_depth": [3, 5],
+                    },
+                    "Linear Regression": {},
+                    "XGBRegressor": {
+                        "n_estimators": [50, 100],
+                        "learning_rate": [0.05, 0.1],
+                        "max_depth": [3, 5],
+                    },
+                    "CatBoosting Regressor": {
+                        "iterations": [50, 100],
+                        "depth": [4, 6],
+                        "learning_rate": [0.05, 0.1],
+                    },
+                    "AdaBoost Regressor": {
+                        "n_estimators": [50, 100],
+                        "learning_rate": [0.05, 0.1],
+                    },
+                }
 
-            # Get best model score
-            best_model_score = max(sorted(model_report.values()))
+            best_models = {}
+            model_report = {}
 
-            # Get corresponding model name
+            for model_name, model in models.items():
+                logger.info(f"Tuning hyperparameters for {model_name}")
+
+                params = param_grids.get(model_name, {})
+
+                if params:
+                    grid = GridSearchCV(
+                        estimator=model,
+                        param_grid=params,
+                        cv=3,
+                        scoring="r2",
+                        n_jobs=-1
+                    )
+
+                    grid.fit(X_train, y_train)
+                    best_model = grid.best_estimator_
+                else:
+                    model.fit(X_train, y_train)
+                    best_model = model
+
+                # Evaluate on test set
+                y_pred = best_model.predict(X_test)
+                score = r2_score(y_test, y_pred)
+
+                best_models[model_name] = best_model
+                model_report[model_name] = score
+
+                logger.info(f"{model_name} R2 Score: {score}")
+                
+            # Select best model based on highest R2 score
+            best_model_score = max(model_report.values())
+
             best_model_name = list(model_report.keys())[
                 list(model_report.values()).index(best_model_score)
             ]
 
-            # Retrieve best model instance
-            best_model = models[best_model_name]
-
-            # Threshold check
+            best_model = best_models[best_model_name]
+                    # Threshold check
             if best_model_score < 0.6:
                 raise CustomException("No best model found with sufficient performance")
 
