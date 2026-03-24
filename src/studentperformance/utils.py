@@ -200,3 +200,33 @@ def evaluate_models(X_train, y_train, X_test, y_test, models):
     except Exception as e:
         logger.error("Error occurred while evaluating models")
         raise CustomException(e, sys)
+    
+
+def load_object(file_path):
+    """
+    Load a serialized Python object (e.g., model or preprocessor)
+    from a given file path using pickle.
+
+    Args:
+        file_path (str): Path to the .pkl file
+
+    Returns:
+        object: Loaded Python object (model, preprocessor, etc.)
+
+    Raises:
+        CustomException: If file is not found or loading fails
+    """
+    try:
+        # Check if the file exists at the given path
+        if not os.path.exists(file_path):
+            raise Exception(f"File not found at {file_path}")
+
+        # Open the file in binary read mode ("rb")
+        with open(file_path, "rb") as file_obj:
+            
+            # Load and return the object using pickle
+            return pickle.load(file_obj)
+
+    except Exception as e:
+        # Wrap and raise the exception using custom exception class
+        raise CustomException(e, sys)

@@ -161,7 +161,7 @@ class ModelTrainer:
                     grid = GridSearchCV(
                         estimator=model,
                         param_grid=params,
-                        cv=3,
+                        cv=5,
                         scoring="r2",
                         n_jobs=-1
                     )

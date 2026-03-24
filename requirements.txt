@@ -8,3 +8,7 @@ xgboost
 dvc
 kagglehub
 dill 
+flask
+requests
+fastapi
+streamlit 

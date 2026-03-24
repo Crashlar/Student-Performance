@@ -16,10 +16,13 @@ the package without deep imports.
 from .studentperformance.exception import CustomException
 from .studentperformance.logger import get_logger
 from .studentperformance.utils import load_data
+from .studentperformance.utils import evaluate_models
+from .studentperformance.utils import load_object
 from .studentperformance.utils import save_object
 from .studentperformance.components.data_ingestion import DataIngestion , DataIngestionConfig
 from .studentperformance.components.data_transformation import DataTransformation , DataTransformationConfig
 from .studentperformance.components.model_trainer import ModelTrainer , ModelTrainerConfig
+from .studentperformance.pipelines.prediction_pipeline import PredictionPipeline , CustomData
 
 
 # Initialize a module-level logger for reuse across the application
