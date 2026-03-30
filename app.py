@@ -14,7 +14,13 @@ with open("artifacts/preprocessor.pkl" , "rb") as f:
     preprocessor = joblib.load(f)
     
 
-app = FastAPI()
+
+app = FastAPI(
+    title="Student Performance API",
+    description="Predicts student exam performance using ML",
+    version="0.1.0"
+)
+
 
 # step2 = schema of userInput
 class UserInput(BaseModel):
@@ -23,8 +29,8 @@ class UserInput(BaseModel):
     parental_level_of_education : Annotated[Literal["some high school" , "high school" , "some college" , "associate's degree" , "bachelor's degree" , "master's degree"] , Field(...,description="Parental level of education of the student")]
     lunch : Annotated[Literal["standard" , "free/reduced"] , Field(...,description="Lunch type of the student")]
     test_preparation_course : Annotated[Literal["none" , "completed"] , Field(...,description="Test preparation course of the student")]    
-    reading_score : Annotated[int , Field(... ,gt = 0 , le = 100, description="Reading score of the student")  ]
-    writing_score : Annotated[int , Field(... ,gt = 0 , le = 100, description="Writing score of the student")]
+    reading_score : Annotated[int , Field(... ,gt = 0 , lt = 100, description="Reading score of the student")  ]
+    writing_score : Annotated[int , Field(... ,gt = 0 , lt = 100, description="Writing score of the student")]
     
 
 # Step 3 : Prediction 
@@ -48,4 +54,18 @@ def predict_performance(user_input : UserInput):
     except Exception as e:
         return JSONResponse({"error" : str(e)})
     
+
+@app.get("/")
+def home():
+    return {
+        "message": "🎓 Student Performance Prediction API",
+        "status": "running",
+        "project": "Predict student performance using ML model",
+        "version": "0.1.0",
+        "endpoints": {
+            "docs": "/docs",
+            "predict": "/predict"
+        },
+        "usage": "Send POST request to /predict with student data"
+    }
     
