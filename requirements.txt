@@ -12,3 +12,7 @@ flask
 requests
 fastapi
 streamlit 
+scikit-learn 
+joblib
+uvicorn
+colorlog

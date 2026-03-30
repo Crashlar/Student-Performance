@@ -60,6 +60,6 @@ setup(
 
     keywords="student performance,  performance",
 
-    python_requires=">=3.8",
+    python_requires=">=3.11",
     include_package_data=True,
 )
