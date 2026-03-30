@@ -6,7 +6,7 @@ from typing import Literal , Annotated
 import joblib
 import pandas as pd 
 
-# Steo 1 load the files
+# Step 1 load the files
 with open("artifacts/model.pkl" , "rb") as f:
     model = joblib.load(f)
 
@@ -69,3 +69,13 @@ def home():
         "usage": "Send POST request to /predict with student data"
     }
     
+@app.get("/health")
+def health():
+    return(
+        {
+            "status" : "OK",
+            "model Version" : "0.1.0"
+        }
+    )
+ 
+
