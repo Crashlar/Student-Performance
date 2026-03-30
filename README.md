@@ -41,7 +41,7 @@ The application is designed with a clear separation of concerns:
 ### Prerequisites
 
 - Python 3.11
-- Docker (optional)
+- Docker 
 
 ### 1. Clone the Repository
 
@@ -80,13 +80,25 @@ Now, open your browser and go to the address provided by Streamlit (usually `htt
 
 ### 4. Using Docker (Alternative)
 
-Build and run the application using Docker Compose:
+You can also run the application using a pre-built Docker image from Docker Hub.
+
+**1. Pull the Docker Image**
+
+Pull the image from Docker Hub:
 
 ```bash
-docker-compose up --build
+docker pull crashlar/student-performance:latest
 ```
 
-This will start both the FastAPI backend and the Streamlit frontend.
+**2. Run the Docker Container**
+
+Run the container, exposing the necessary ports for the frontend and backend:
+
+```bash
+docker run -p 8000:8000 crashlar/student-performance:latest
+```
+
+- The FastAPI backend will be available at `http://localhost:8000`.
 
 ## 📁 Project Structure
 
